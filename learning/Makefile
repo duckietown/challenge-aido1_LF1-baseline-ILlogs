@@ -41,7 +41,7 @@ install-dependencies:
 				virtualenv $(VIRTUALENV); \
 				. $(VIRTUALENV)/bin/activate; \
 				pip install -e .; \
-				pip install tensorflow-gpu;
+				pip install --upgrade tensorflow-gpu==1.12.0;
 
 learn-regular:
 				. $(VIRTUALENV)/bin/activate; \

@@ -241,13 +241,13 @@ def main():
         os.remove(test_set_name)
 
     # df_all_train.to_hdf(train_set_name, 'table')
-    df_data_train.to_hdf(train_set_name, key='data', encoding='utf-8')
-    df_img_train.to_hdf(train_set_name, key='images', encoding='utf-8')
+    df_data_train.to_hdf(train_set_name, key='data', encoding='utf-8', table=True, mode='a')
+    df_img_train.to_hdf(train_set_name, key='images', encoding='utf-8', table=True, mode='a')
 
 
     # df_all_test.to_hdf(test_set_name, 'table')
-    df_data_test.to_hdf(test_set_name, key='data', encoding='utf-8')
-    df_img_test.to_hdf(test_set_name, key='images', encoding='utf-8')
+    df_data_test.to_hdf(test_set_name, key='data', encoding='utf-8', table=True, mode='a')
+    df_img_test.to_hdf(test_set_name, key='images', encoding='utf-8', table=True, mode='a')
 
     print("\nThe total {} data were split into {} training and {} test datasets and saved in {} "
           "directory.".format(synch_data.shape[0], df_data_train.shape[0], df_data_test.shape[0], data_directory))

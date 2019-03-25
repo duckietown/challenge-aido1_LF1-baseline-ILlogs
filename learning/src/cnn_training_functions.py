@@ -14,7 +14,7 @@ def load_data(file_path):
     '''
 
     # read dataframes
-    df_data = pd.read_hdf(file_path, key='data')
+    df_data = pd.read_hdf(file_path, key='data', encoding='utf-8')
     df_img = pd.read_hdf(file_path, key='images', encoding='utf-8')
 
     # extract omega velocities from dataset
