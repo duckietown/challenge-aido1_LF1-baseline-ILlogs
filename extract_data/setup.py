@@ -9,7 +9,7 @@ setup(
         'pyyaml',
         'rospkg',
         'numpy',
-        'pandas>=0.23.0',
+        'pandas==0.23.0',
         'tables>=3.4.3',
         'requests',
         'opencv-python==3.2.0.8',
