@@ -26,14 +26,14 @@ ARG CUDA=10.0
 FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
 # ARCH and CUDA are specified again because the FROM directive resets ARGs
 # (but their default value is retained if set previously)
+SHELL ["/bin/bash", "-c"]
+
 ARG ARCH
 ARG CUDA
 ARG CUDNN=7.4.1.5-1
 ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=1.13.1
 
-# Needed for string substitution 
-SHELL ["/bin/bash", "-c"]
 # Pick up some TF dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -112,12 +112,8 @@ RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 
 RUN ${PIP} install ${TF_PACKAGE}${TF_PACKAGE_VERSION:+==${TF_PACKAGE_VERSION}}
 
-RUN python --version
-
 # from https://github.com/tensorflow/tensorflow/issues/10776
 # this may not be needed if you use pytorch image
-RUN ls /usr/local/cuda/lib64
-
 RUN cd /usr/local/cuda/lib64 \
     && mv stubs/libcuda.so ./ \
     && ln -s libcuda.so libcuda.so.1 \
@@ -132,29 +128,23 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
          python3-tk && \
      rm -rf /var/lib/apt/lists/*
 
-COPY bashrc /etc/bash.bashrc
-RUN chmod a+rwx /etc/bash.bashrc
+#COPY bashrc /etc/bash.bashrc
+#RUN chmod a+rwx /etc/bash.bashrc
 
+ARG proj_dir=project
 # let's create our workspace, we don't want to clutter the container
-RUN mkdir /workspace
+WORKDIR /${proj_dir}
 
 # let's copy all our solution files to our workspace
 # if you have more file use the COPY command to move them to the workspace
-COPY imitation_agent.py /workspace
-COPY learned_models /workspace
-COPY src /workspace
+COPY imitation_agent.py .
+COPY learned_models .
+COPY src/ .
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-COPY requirements.txt /workspace
-RUN pip install -r /workspace/requirements.txt
-
-# sanity check
-RUN python3 --version
-RUN python --version
-
-# we make the workspace our working directory
-WORKDIR /workspace
+COPY requirements.txt requirements-base.txt
+RUN pip install -r requirements-base.txt
 
 # DO NOT MODIFY: your submission won't run if you do
 ENV DUCKIETOWN_SERVER=evaluator
