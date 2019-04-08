@@ -8,7 +8,7 @@ import numpy as np
 def fun_img_preprocessing(image, image_final_height, image_final_width):
 
     # crop the 1/3 upper part of the image
-    new_img = image[image.shape[0]/3:, :, :]
+    new_img = image[int(image.shape[0]/3):, :, :]
 
     # transform the color image to grayscale
     new_img = cv2.cvtColor(new_img[:, :, :], cv2.COLOR_RGB2GRAY)

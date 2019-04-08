@@ -2,11 +2,14 @@
 from dataclasses import dataclass
 from typing import Tuple
 
+import tensorflow as tf
 import numpy as np
 
 from aido_schemas import EpisodeStart, protocol_agent_duckiebot1, PWMCommands, Duckiebot1Commands, LEDSCommands, RGB, \
     wrap_direct, Context, Duckiebot1Observations, JPGImage
 
+from graph_utils import load_graph
+from cnn_predictions import fun_img_preprocessing
 
 @dataclass
 class ImitationAgentConfig:
@@ -60,11 +63,12 @@ class ImitationAgent:
         # pwm_left = np.random.uniform(l, u)
         l, u = self.config.pwm_right_interval
         # pwm_right = np.random.uniform(l, u)
-        pwm_left, pwm_right = compute_action(self.config.current_image)
+        pwm_left, pwm_right = self.compute_action(self.config.current_image)
 
         grey = RGB(0.0, 0.0, 0.0)
         led_commands = LEDSCommands(grey, grey, grey, grey, grey)
-        pwm_commands = PWMCommands(motor_left=pwm_left, motor_right=pwm_right)
+        pwm_commands = PWMCommands(motor_left=float(pwm_left),
+                                   motor_right=float(pwm_right))
         commands = Duckiebot1Commands(pwm_commands, led_commands)
         context.write('commands', commands)
 

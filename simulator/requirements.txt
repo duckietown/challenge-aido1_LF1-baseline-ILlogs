@@ -1,0 +1,16 @@
+
+-e git://github.com/duckietown/gym-duckietown.git@aido2_lf_r1#egg=gym-duckietown
+-e git://github.com/duckietown/duckietown-world.git@aido2_lf_r1#egg=duckietown-world
+-e git://github.com/AndreaCensi/zuper-utils.git@z1#egg=zuper-utils
+-e git://github.com/AndreaCensi/zuper-nodes.git@z1#egg=zuper-nodes
+-e git://github.com/AndreaCensi/zuper-commons.git@z1#egg=zuper-commons
+-e git://github.com/duckietown/aido-protocols.git@v4#egg=aido-protocols
+
+
+numpy==1.16.2
+
+
+PyGeometry
+
+
+

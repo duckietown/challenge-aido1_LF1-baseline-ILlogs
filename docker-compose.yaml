@@ -1,0 +1,65 @@
+version: '3'
+services:
+  experiment_manager:
+    environment:
+      DISABLE_CONTRACTS: 1
+      AIDONODE_ENCODING: cbor
+      experiment_manager_parameters: |
+        episodes_per_scenario: 2
+        episode_length_s: 5.0
+        min_episode_length_s: 1.0
+        seed: 42
+        physics_dt: 0.05
+        max_failures: 2
+        agent_in: /fifos/agent-in
+        agent_out: /fifos/agent-out
+        sim_in: /fifos/simulator-in
+        sim_out: /fifos/simulator-out
+        sm_in: /fifos/scenario_maker-in
+        sm_out: /fifos/scenario_maker-out
+    build:
+      context: ./experiment_manager
+    volumes: &volumes
+      - ./challenges-dir:/challenges
+      - fifos:/fifos
+
+  scenario_maker:
+    environment:
+      DISABLE_CONTRACTS: 1
+      AIDONODE_ENCODING: cbor
+      AIDONODE_DATA_IN: /fifos/scenario_maker-in
+      AIDONODE_DATA_OUT: fifo:/fifos/scenario_maker-out
+      AIDONODE_CONFIG: |
+        maps:
+        - 4way
+        scenarios_per_map: 1
+    build:
+      context: ./scenario_maker
+    volumes: *volumes
+  simulator:
+    build:
+      context: ./simulator
+    environment:
+      AIDONODE_DATA_IN: /fifos/simulator-in
+      AIDONODE_DATA_OUT: fifo:/fifos/simulator-out
+      AIDONODE_ENCODING: cbor
+      AIDONODE_CONFIG: |
+        env_constructor: Simulator
+        env_parameters:
+          max_steps: 500001 # we don't want the gym to reset itself
+          domain_rand: 0
+          camera_width: 640
+          camera_height: 480
+          distortion: true
+    volumes: *volumes
+
+  solution:
+    build:
+      context: ./minimal_agent
+    environment:
+      AIDONODE_DATA_IN: /fifos/agent-in
+      AIDONODE_DATA_OUT: fifo:/fifos/agent-out
+      AIDONODE_ENCODING: cbor
+    volumes: *volumes
+volumes:
+  fifos:

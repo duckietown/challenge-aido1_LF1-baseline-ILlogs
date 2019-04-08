@@ -1,4 +1,5 @@
-challenge: aido2_LF_r2-v4
+challenge:
+  - aido2_LF_r2-v4
 protocol: aido2_db18_agent_1
 user-label: "Baseline solution using imitation learning from logs"
 user-payload: {}

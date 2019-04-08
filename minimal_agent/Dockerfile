@@ -62,9 +62,9 @@ RUN [ ${ARCH} = ppc64le ] || (apt-get update && \
 # For CUDA profiling, TensorFlow requires CUPTI.
 ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
 
-# DO NOT CHANGE PYTHON VERSION 
+# DO NOT CHANGE PYTHON VERSION
 # - if you do also change ppa repository to pull python version from
-ARG _PY_SUFFIX=3.7 
+ARG _PY_SUFFIX=3.7
 ARG PYTHON=python${_PY_SUFFIX}
 ARG PIP=pip${_PY_SUFFIX}
 
@@ -100,7 +100,7 @@ RUN ${PYTHON} -m pip install --no-cache-dir tensorflow-gpu==${TF_PACKAGE_VERSION
 #    setuptools
 
 # Some TF tools expect a "python" binary
-RUN ln -s $(which ${PYTHON}) /usr/local/bin/python 
+RUN ln -s $(which ${PYTHON}) /usr/local/bin/python
 
 # Options:
 #   tensorflow
@@ -128,23 +128,25 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
          python3-tk && \
      rm -rf /var/lib/apt/lists/*
 
-#COPY bashrc /etc/bash.bashrc
-#RUN chmod a+rwx /etc/bash.bashrc
-
 ARG proj_dir=project
 # let's create our workspace, we don't want to clutter the container
 WORKDIR /${proj_dir}
 
 # let's copy all our solution files to our workspace
 # if you have more file use the COPY command to move them to the workspace
-COPY imitation_agent.py .
-COPY learned_models .
-COPY src/ .
+COPY . .
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-COPY requirements.txt requirements-base.txt
-RUN pip install -r requirements-base.txt
+# COPY requirements.txt requirements-base.txt
+# RUN pip install -r requirements-base.txt
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+# necessary to get opencv to work properly
+RUN apt update && apt install -y libsm6 libxext6
+
+ENV DISABLE_CONTRACTS=1
 
 # DO NOT MODIFY: your submission won't run if you do
 ENV DUCKIETOWN_SERVER=evaluator
