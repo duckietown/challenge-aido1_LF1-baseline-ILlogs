@@ -29,7 +29,7 @@ learn-docker:
 copy_for_submission:
 				mkdir ../submission/learned_models; \
 				docker create -it --name dummy_for_copying learn_container:latest bash; \
-				docker cp dummy_for_copying:/workspace/learned_models/frozen_graph.pb ../submission/learned_models; \
+				docker cp dummy_for_copying:/workspace/learned_models/frozen_graph.pb ../imitation_agent; \
 				docker rm -fv dummy_for_copying;
 
 # ---------- REGULAR --------------
@@ -49,6 +49,4 @@ learn-regular:
 				python src/freeze_graph.py;
 
 regular_copy_for_submission:
-				mkdir ../submission/learned_models; \
-				cp learned_models/frozen_graph.pb ../submission/learned_models;
-
+				cp learned_models/frozen_graph.pb ../imitation_agent;
