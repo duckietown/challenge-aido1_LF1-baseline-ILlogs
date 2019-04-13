@@ -140,16 +140,11 @@ COPY . .
 # you can add more if you need to in requirements.txt
 # COPY requirements.txt requirements-base.txt
 # RUN pip install -r requirements-base.txt
-COPY requirements.txt requirements.txt
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # necessary to get opencv to work properly
 RUN apt update && apt install -y libsm6 libxext6
-
-ENV DISABLE_CONTRACTS=1
-
-# DO NOT MODIFY: your submission won't run if you do
-ENV DUCKIETOWN_SERVER=evaluator
 
 # CMD python solution.py
 ENTRYPOINT ["python", "imitation_agent.py"]

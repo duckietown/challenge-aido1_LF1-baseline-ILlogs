@@ -5,7 +5,7 @@ challenge:
 
 # conventions + format
 protocol: aido2_db18_agent-z2
-user-label: "Baseline solution using imitation learning from logs"
+user-label: "baseline-IL-logs-tensorflow"
 user-payload: {}
 description: |
-    This is a simple baseline solution for an agent learns to imitate behavior from logs
+    This is a simple baseline solution for an agent learns to imitate behavior from logs.
