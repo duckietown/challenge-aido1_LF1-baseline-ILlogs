@@ -34,6 +34,15 @@ ARG CUDNN=7.4.1.5-1
 ARG TF_PACKAGE=tensorflow
 ARG TF_PACKAGE_VERSION=1.13.1
 
+# let's create our workspace, we don't want to clutter the container
+WORKDIR /${proj_dir}
+
+# let's copy all our solution files to our workspace
+# if you have more file use the COPY command to move them to the workspace
+# IMPORTANT: ensure that frozen_graph.pb is in your imitation_agent folder
+# Otherwise this will fail since no model is present to be executed
+COPY . .
+
 # Pick up some TF dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -129,12 +138,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
      rm -rf /var/lib/apt/lists/*
 
 ARG proj_dir=project
-# let's create our workspace, we don't want to clutter the container
-WORKDIR /${proj_dir}
-
-# let's copy all our solution files to our workspace
-# if you have more file use the COPY command to move them to the workspace
-COPY . .
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
