@@ -28,6 +28,15 @@ FROM nvidia/cuda${ARCH:+-$ARCH}:${CUDA}-base-ubuntu${UBUNTU_VERSION} as base
 # (but their default value is retained if set previously)
 SHELL ["/bin/bash", "-c"]
 
+# let's create our workspace, we don't want to clutter the container
+WORKDIR /${proj_dir}
+
+# let's copy all our solution files to our workspace
+# if you have more file use the COPY command to move them to the workspace
+# IMPORTANT: This should fail if "frozen_graph.pb" does not exist.
+# This file will contain a learned model which the agent should execute.
+COPY . .
+
 ARG ARCH
 ARG CUDA
 ARG CUDNN=7.4.1.5-1
@@ -129,12 +138,6 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
      rm -rf /var/lib/apt/lists/*
 
 ARG proj_dir=project
-# let's create our workspace, we don't want to clutter the container
-WORKDIR /${proj_dir}
-
-# let's copy all our solution files to our workspace
-# if you have more file use the COPY command to move them to the workspace
-COPY . .
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
