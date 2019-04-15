@@ -1,0 +1,9 @@
+h5py 
+pyyaml
+rospkg
+numpy
+pandas==0.23.0
+tables==3.4.3
+requests
+opencv-python==3.2.0.8
+pyrosbag
