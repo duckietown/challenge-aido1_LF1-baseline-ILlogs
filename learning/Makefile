@@ -27,7 +27,7 @@ learn-docker:
 
 # Extract data from docker container and copies it to the learning repository
 copy_for_submission:
-				mkdir ../submission/learned_models; \
+				mkdir ../imitation_agent/learned_models; \
 				docker create -it --name dummy_for_copying learn_container:latest bash; \
 				docker cp dummy_for_copying:/workspace/learned_models/frozen_graph.pb ../imitation_agent; \
 				docker rm -fv dummy_for_copying;
