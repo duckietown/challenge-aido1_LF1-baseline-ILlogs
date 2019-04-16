@@ -17,9 +17,9 @@ RUN mkdir /workspace
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-COPY setup.py /workspace
+COPY requirements.txt .
 # Install dependencies
-RUN pip install -e /workspace
+RUN pip install -r requirements.txt
 
 RUN apt-get update
 
