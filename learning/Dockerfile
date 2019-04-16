@@ -31,11 +31,5 @@ COPY . .
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# if you have more file use the COPY command to move them to the workspace
-# COPY src /workspace
-
-
-# COPY data /workspace/data
-
 # Train CNN model for lane following && Freeze model graph
 CMD python src/cnn_training_tensorflow.py && python src/freeze_graph.py

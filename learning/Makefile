@@ -22,8 +22,8 @@ prepare-docker:
 # This may run for >10 min and longer (on GPU) if more data is used for learning.
 learn-docker:
 				docker build -t learn_container .; \
-				docker run --runtime=nvidia learn_container;
-				docker commit $(shell docker ps -alq) learn_container
+				mkdir learned_models; \
+				docker run -v $$PWD/learned_models:/workspace/learned_models learn_container;
 
 # Extract data from docker container and copies it to the learning repository
 copy_for_submission:
