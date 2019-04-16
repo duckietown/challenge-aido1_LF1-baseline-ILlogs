@@ -16,9 +16,9 @@ COPY . .
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
 # COPY requirements.txt requirements-base.txt
-# RUN pip install -r requirements-base.txt
+# RUN pip install -r --no-cache-dir requirements-base.txt
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install -r --no-cache-dir requirements.txt
 
 # necessary to get opencv to work properly
 RUN apt update && apt install -y libsm6 libxext6

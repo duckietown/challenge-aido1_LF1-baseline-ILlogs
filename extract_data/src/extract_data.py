@@ -194,10 +194,8 @@ def main():
     })
 
     # create train dataframe for images in order to save them in the same .h5 file with the rest train data
-    df_img_train = pd.DataFrame({
-        'img': [ synch_imgs[:train_size, :] ]
-    })
-
+    df_img_train = pd.DataFrame(synch_imgs[:train_size])
+    
     # create test dataframe
     df_data_test = pd.DataFrame({
         'img_timestamp': synch_data[train_size:, 0],
@@ -208,9 +206,7 @@ def main():
     })
 
     # create test dataframe for images in order to save them in the same .h5 file with the rest test data
-    df_img_test = pd.DataFrame({
-        'img': [ synch_imgs[train_size:, :] ]
-    })
+    df_img_test = pd.DataFrame(synch_imgs[train_size:])
 
 
     # save train and test datasets to .h5 files
@@ -241,13 +237,13 @@ def main():
         os.remove(test_set_name)
 
     # df_all_train.to_hdf(train_set_name, 'table')
-    df_data_train.to_hdf(train_set_name, key='data', encoding='utf-8', table=True, mode='a')
-    df_img_train.to_hdf(train_set_name, key='images', encoding='utf-8', table=True, mode='a')
+    df_data_train.to_hdf(train_set_name, key='data', encoding='utf-8', format='table', mode='a')
+    df_img_train.to_hdf(train_set_name, key='images', encoding='utf-8', format='table', mode='a')
 
 
     # df_all_test.to_hdf(test_set_name, 'table')
-    df_data_test.to_hdf(test_set_name, key='data', encoding='utf-8', table=True, mode='a')
-    df_img_test.to_hdf(test_set_name, key='images', encoding='utf-8', table=True, mode='a')
+    df_data_test.to_hdf(test_set_name, key='data', encoding='utf-8', format='table', mode='a')
+    df_img_test.to_hdf(test_set_name, key='images', encoding='utf-8', format='table', mode='a')
 
     print("\nThe total {} data were split into {} training and {} test datasets and saved in {} "
           "directory.".format(synch_data.shape[0], df_data_train.shape[0], df_data_test.shape[0], data_directory))

@@ -1,0 +1,6 @@
+**
+!src/*.py
+!requirements.txt
+!*.pb
+!data/train/*.h5
+!data/test/*.h5

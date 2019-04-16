@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 VIRTUALENV = LF_IL_virtualenv_learning
-AG_VERSION = 2018-10-19
+AG_VERSION = 2019-04-16
 
 # Makefile to structure work on the AI-DO baselines.
 
@@ -40,8 +40,8 @@ copy_for_submission:
 install-dependencies:
 				virtualenv $(VIRTUALENV); \
 				. $(VIRTUALENV)/bin/activate; \
-				pip install -e .; \
-				pip install --upgrade tensorflow-gpu==1.12.0;
+				pip install --no-cache-dir -r requirements.txt; \
+				pip install --upgrade tensorflow==1.12.0;
 
 learn-regular:
 				. $(VIRTUALENV)/bin/activate; \
