@@ -15,9 +15,8 @@ COPY . .
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-# COPY requirements.txt requirements-base.txt
-# RUN pip install -r --no-cache-dir requirements-base.txt
-COPY requirements.txt .
+
+RUN pip install -r --no-cache-dir requirements-base.txt
 RUN pip install -r --no-cache-dir requirements.txt
 
 # necessary to get opencv to work properly

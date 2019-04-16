@@ -25,6 +25,6 @@ Follow the makefile in the individual folders of this repository.
 
 1. Download and extract data using the Makefile in the `extract_data` folder.
 2. Learn a model using the Makefile and scripts in the `learning` folder.
-3. Submit the learned model by running `make submit` in the `submission` folder.
+3. Submit the learned model by running `make submit` in the `imitation_agent` folder.
 
 Each folder has its own README for further instructions.
