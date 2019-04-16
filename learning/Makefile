@@ -17,7 +17,7 @@ prepare-docker:
 				sudo apt-get update; \
 				sudo apt-get install -y nvidia-docker2 nvidia-container-runtime; \
 				sudo pkill -SIGHUP dockerd; \
-				docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi;
+				docker run --runtime=nvidia --rm nvidia/cuda:10.0-base nvidia-smi;
 
 # This may run for >10 min and longer (on GPU) if more data is used for learning.
 learn-docker:
@@ -41,7 +41,7 @@ install-dependencies:
 				virtualenv $(VIRTUALENV); \
 				. $(VIRTUALENV)/bin/activate; \
 				pip install --no-cache-dir -r requirements.txt; \
-				pip install --upgrade tensorflow==1.12.0;
+				pip install --upgrade tensorflow-gpu==1.13.1;
 
 learn-regular:
 				. $(VIRTUALENV)/bin/activate; \

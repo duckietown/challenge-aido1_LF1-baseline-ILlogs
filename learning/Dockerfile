@@ -29,7 +29,7 @@ RUN mkdir /workspace/data
 # let's copy all our solution files to our workspace
 COPY . .
 # Install dependencies
-RUN pip install -no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # if you have more file use the COPY command to move them to the workspace
 # COPY src /workspace
@@ -38,4 +38,4 @@ RUN pip install -no-cache-dir -r requirements.txt
 # COPY data /workspace/data
 
 # Train CNN model for lane following && Freeze model graph
-CMD python cnn_training_tensorflow.py && python freeze_graph.py
+CMD python src/cnn_training_tensorflow.py && python src/freeze_graph.py
