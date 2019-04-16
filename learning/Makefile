@@ -23,7 +23,7 @@ prepare-docker:
 learn-docker:
 				docker build -t learn_container .; \
 				mkdir learned_models; \
-				docker run -v $$PWD/learned_models:/workspace/learned_models learn_container;
+				docker run --runtime=nvidia -v $$PWD/learned_models:/workspace/learned_models learn_container;
 
 # Extract data from docker container and copies it to the learning repository
 copy_for_submission:
