@@ -3,7 +3,7 @@
 
 # conventions + format
 protocol: aido2_db18_agent-z2
-user-label: "baseline-IL-logs-tensorflow"
+user-label: "Baseline-IL-logs-tensorflow"
 user-payload: {}
 description: |
     This is a simple baseline solution for an agent learns to imitate behavior from logs.

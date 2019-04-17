@@ -1,4 +1,4 @@
-AG_VERSION = 2019-04-16
+AG_VERSION = 2019-04-17
 
 # Makefile to structure work on the AI-DO baselines.
 
