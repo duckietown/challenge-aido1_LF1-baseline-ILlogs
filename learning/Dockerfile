@@ -20,22 +20,16 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
 
 # let's create our workspace, we don't want to clutter the container
 RUN mkdir /workspace
+# we make the workspace our working directory
+WORKDIR /workspace
+RUN mkdir /workspace/data
 
 # here, we install the requirements, some requirements come by default
 # you can add more if you need to in requirements.txt
-COPY setup.py /workspace
-# Install dependencies
-RUN pip install -e /workspace
-
 # let's copy all our solution files to our workspace
-# if you have more file use the COPY command to move them to the workspace
-COPY src /workspace
-
-# we make the workspace our working directory
-WORKDIR /workspace
-
-RUN mkdir /workspace/data
-COPY data /workspace/data
+COPY . .
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Train CNN model for lane following && Freeze model graph
-CMD python cnn_training_tensorflow.py && python freeze_graph.py
+CMD python src/cnn_training_tensorflow.py && python src/freeze_graph.py

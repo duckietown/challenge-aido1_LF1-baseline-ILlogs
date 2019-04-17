@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 VIRTUALENV = LF_IL_virtualenv_learning
-AG_VERSION = 2018-10-19
+AG_VERSION = 2019-04-16
 
 # Makefile to structure work on the AI-DO baselines.
 
@@ -17,20 +17,18 @@ prepare-docker:
 				sudo apt-get update; \
 				sudo apt-get install -y nvidia-docker2 nvidia-container-runtime; \
 				sudo pkill -SIGHUP dockerd; \
-				docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi;
+				docker run --runtime=nvidia --rm nvidia/cuda:10.0-base nvidia-smi;
 
 # This may run for >10 min and longer (on GPU) if more data is used for learning.
 learn-docker:
 				docker build -t learn_container .; \
-				docker run --runtime=nvidia learn_container;
-				docker commit $(shell docker ps -alq) learn_container
+				mkdir learned_models; \
+				docker run --runtime=nvidia -v $$PWD/learned_models:/workspace/learned_models learn_container;
 
 # Extract data from docker container and copies it to the learning repository
 copy_for_submission:
-				mkdir ../submission/learned_models; \
-				docker create -it --name dummy_for_copying learn_container:latest bash; \
-				docker cp dummy_for_copying:/workspace/learned_models/frozen_graph.pb ../imitation_agent; \
-				docker rm -fv dummy_for_copying;
+				sudo chown $$(id -u):$$(id -g) learned_models/frozen_graph.pb; \
+				cp learned_models/frozen_graph.pb ../imitation_agent/;
 
 # ---------- REGULAR --------------
 # This assumes that you have GPU drivers installed already.
@@ -40,8 +38,8 @@ copy_for_submission:
 install-dependencies:
 				virtualenv $(VIRTUALENV); \
 				. $(VIRTUALENV)/bin/activate; \
-				pip install -e .; \
-				pip install --upgrade tensorflow-gpu==1.12.0;
+				pip install --no-cache-dir -r requirements.txt; \
+				pip install --upgrade tensorflow-gpu==1.13.1;
 
 learn-regular:
 				. $(VIRTUALENV)/bin/activate; \

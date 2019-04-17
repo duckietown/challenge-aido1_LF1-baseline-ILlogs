@@ -21,10 +21,9 @@ def load_data(file_path):
     # velocities = df_data['vel_omega'].values
     velocities = df_data[['vel_left', 'vel_right']].values
     velocities = np.reshape(velocities, (-1, 2))
-
     # extract images from dataset
-    images = df_img['img'][0]
-
+    images = df_img[:]
+    print("Images type:", type(images))
     print('The dataset is loaded: {} images and {} omega velocities.'.format(images.shape[0], velocities.shape[0]))
 
     if not images.shape[0] == velocities.shape[0]:
@@ -230,8 +229,3 @@ class CNN_training:
         # close summary writer
         train_writer.close()
         test_writer.close()
-
-
-
-
-
