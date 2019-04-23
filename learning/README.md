@@ -7,9 +7,7 @@
 
 ## Tensorflow baseline "Solution template" for challenge `aido_LF`
 
-Learning remarks:
-
-For learning you can execute the commands in the Makefile in chronological order.
+For learn an imitation model you can execute the commands in the Makefile in chronological order.
 
 For ease of use a Makefile is provided to support all steps in using this template.
 There are two ways of running the makefile. Using docker and without.
@@ -30,13 +28,17 @@ This makes sure docker is able to find the nvidia runtime which connects docker 
 
 Type: `make learn-docker`
 
+## Copy to imitation agent folder
+
+Type: `make copy_for_submission`
+
 # Regular/without docker
 
 ## Dependencies
 
-Create new virtual environment and install necessary dependencies.
-Note that ROS needs to be installed additionally.
-Important: Make sure that your CuDNN version matches the tensorflow that will be installed.
+Create new virtual environment and install necessary dependencies. In this case we require Python 2.7 to be installed. You may use another Python version however the dependencies specified in `requirements.txt` will have to be adjusted.
+Note that ROS needs to be installed additionally if you are running this without Docker.
+Important: Make sure that your CuDNN version matches the Tensorflow version that will be installed.
 To edit/adjust, change the version in the `install-dependencies` command in the Makefile.
 
 Type: `install-dependencies`
@@ -52,4 +54,5 @@ Type: `make learn-regular`
 
 Type: `make regular_copy_for_submission`
 
-The saved file will be used for the following submission step.
+The saved file will be used for the following submission step and is copied
+to the folder `../imitation_agent`.
