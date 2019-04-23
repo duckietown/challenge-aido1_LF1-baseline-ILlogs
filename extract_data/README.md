@@ -7,21 +7,27 @@
 
 ## Tensorflow baseline "Solution template" for challenge `aido_LF`
 
-Learning remarks:
+## Data extraction
 
-For learning you can execute the commands in the Makefile in chronological order.
+Note: The supported way is to run data extraction is using Docker. We advise having it installed before continuing.
+
+To be able to run imitation learning, we first download and process and number of logs of recorded driving behavior. To select logs whose behavior you would like to imitate, go to: http://logs.duckietown.org/
+The logs we are downloading for this baseline are specified in `src/download_logs.py`. Furthermore to save space, the logs are preprocessed to have a certain size and make them gray-scale in `src/extract_data_functions.py`.
+
+
+To run the extraction pipeline you can execute the commands in the Makefile in chronological order.
 
 For ease of use a Makefile is provided to support all steps in using this template.
-There are two ways of running the makefile. Using docker and without.
-Without docker you will need to have configured the GPU drivers for learning correctly.
 
 # Docker
 ## Download and extract data
+
+This downloads the `.bag` log files and extracts the important data into `.h5` files.
 
 Type: `make extract_data`
 
 ## Make extracted data accessible for learning step
 
-Type: `make copy_for_learning`
+This simply copies over the extracted data to the `../learning` folder.
 
-Type: `make learn-docker`
+Type: `make copy_for_learning`
