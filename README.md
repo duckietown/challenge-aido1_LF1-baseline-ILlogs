@@ -28,3 +28,5 @@ Follow the makefile in the individual folders of this repository.
 3. Submit the learned model by running `make submit` in the `imitation_agent` folder.
 
 Each folder has its own README for further instructions.
+
+This code has been tested on Mac OS and Ubuntu 16.04 both running Python 3.7 and Python 2.7.12.

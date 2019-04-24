@@ -9,6 +9,9 @@
 
 # Submission
 
+IMPORTANT: Ensure that the folder `output` (generated when evaluating locally)
+does not exist. If it does exist, evaluation throws an error message. 
+
 We now have a imitation learning Tensorflow model and are ready to test it.
 
 ## Testing locally
