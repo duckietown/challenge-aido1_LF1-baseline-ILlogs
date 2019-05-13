@@ -10,8 +10,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 def main():
 
     # define path for training dataset
-    file_path_train = os.path.join(os.getcwd(), 'data', 'train', 'train_set.h5')
-    file_path_test = os.path.join(os.getcwd(), 'data', 'test', 'test_set.h5')
+    file_data_path = os.path.join(os.getcwd(), 'data', 'LF_dataset.h5')
 
     # define batch_size (e.g 50, 100)
     batch_size = 100
@@ -28,11 +27,11 @@ def main():
 
     # read train data
     print('Reading train dataset')
-    train_velocities, train_images = load_data(file_path_train)
+    train_velocities, train_images = load_data(file_data_path, "training")
 
     # read test data
     print('Reading test dataset')
-    test_velocities, test_images = load_data(file_path_test)
+    test_velocities, test_images = load_data(file_data_path, "testing")
 
     # construct model name based on the hyper parameters
     # model_name = form_model_name(batch_size, learning_rate, optimizer, epochs)

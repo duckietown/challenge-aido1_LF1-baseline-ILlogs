@@ -2,11 +2,11 @@
 
 import numpy as np
 import pandas as pd
+import h5py
 import os
 import collections
 import rosbag
 import cv_bridge
-import cv2
 from copy import copy
 from extract_data_functions import image_preprocessing, synchronize_data
 
@@ -50,7 +50,6 @@ def main():
                 "/wheels_driver_node/wheels_cmd"
                 ]
 
-
     # define the bags_directory in order to extract the data
     bags_directory = os.path.join(os.getcwd(), "data", "bag_files")
 
@@ -58,16 +57,6 @@ def main():
     data_directory = 'data'
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
-
-    # define train and test directories inside the data directory
-    test_dir = os.path.join(data_directory, "test")
-    train_dir = os.path.join(data_directory, "train")
-    if not os.path.exists(test_dir):
-        os.mkdir(test_dir)
-    if not os.path.exists(test_dir):
-        os.mkdir(test_dir)
-    if not os.path.exists(train_dir):
-        os.mkdir(train_dir)
 
     cvbridge_object = cv_bridge.CvBridge()
 
@@ -110,7 +99,6 @@ def main():
 
         # easy way to find the structure of your ros messages : print dir(msgs[name_of_topic])
 
-
         # extract the images and car_cmds messages
         ext_images = msgs["/" + duckiebot_name + "/camera_node/image/compressed"].messages
         # ext_car_cmds = msgs["/" + duckiebot_name + "/lane_controller_node/car_cmd"].messages
@@ -140,7 +128,6 @@ def main():
                 df_imgs = temp_df.copy()
             else:
                 df_imgs = df_imgs.append(temp_df, ignore_index=True)
-
 
         # create dataframe with the car_cmds and the car_cmds' timestamps
         for num, cmd in enumerate(ext_car_cmds):
@@ -184,31 +171,6 @@ def main():
     # define size of train dataset
     train_size = int(0.9 * synch_data.shape[0])
 
-    # create train dataframe
-    df_data_train = pd.DataFrame({
-        'img_timestamp': synch_data[:train_size, 0],
-        'vel_timestamp': synch_data[:train_size, 1],
-        'vel_left': synch_data[:train_size, 2],
-        'vel_right': synch_data[:train_size, 3],
-        'bag_ID': synch_data[:train_size, 4],
-    })
-
-    # create train dataframe for images in order to save them in the same .h5 file with the rest train data
-    df_img_train = pd.DataFrame(synch_imgs[:train_size])
-    
-    # create test dataframe
-    df_data_test = pd.DataFrame({
-        'img_timestamp': synch_data[train_size:, 0],
-        'vel_timestamp': synch_data[train_size:, 1],
-        'vel_left': synch_data[train_size:, 2],
-        'vel_right': synch_data[train_size:, 3],
-        'bag_ID': synch_data[train_size:, 4],
-    })
-
-    # create test dataframe for images in order to save them in the same .h5 file with the rest test data
-    df_img_test = pd.DataFrame(synch_imgs[train_size:])
-
-
     # save train and test datasets to .h5 files
 
     # ATTENTION 1 !!
@@ -225,28 +187,57 @@ def main():
     # the key does not change, we will check if the .h5 file exists before saving the new data, and if it exists we will
     # first remove the previous file ad then save the new data.
 
-    # define the names of the train and test .h5 files
-    train_set_name = os.path.join(train_dir, 'train_set.h5')
-    test_set_name = os.path.join(test_dir, 'test_set.h5')
+    # define the name of the dataset .h5 file
+    dataset_name = os.path.join(data_directory, 'LF_dataset.h5')
 
-    # check if these two files exist in the data directory and if yes remove them before saving the new files
-    if os.path.isfile(train_set_name):
-        os.remove(train_set_name)
+    # check if file already exist in the data directory and if yes it is removed before saving the new file
+    if os.path.isfile(dataset_name):
+        os.remove(dataset_name)
 
-    if os.path.isfile(test_set_name):
-        os.remove(test_set_name)
+    print("Creating lane following training set")
+    f = h5py.File(dataset_name, 'w')
+    description = """
+    This is a lane following training based on Rosbag logs. 
+    Attributes
+    ==========
+    Description: 
+    The dataset contains recording of Duckiebots driving around. Recorded are observed images, velocity commands 
+    for left and right wheels and the corresponding time stamps. 
+    Keys:
+    "vel_left": Recorded left wheel velocity command
+    "vel_right": Recorded right wheel velocity command
+    "bag_ID": ID of rosbag 
+    "img_timestamp":
+    "vel_timestamp":
+    Variants
+    ========
+    split: Split into 'training', 'test' datasets. There are {} training points and {} test points.
+    """.format(train_size, synch_data.shape[0]-train_size)
 
-    # df_all_train.to_hdf(train_set_name, 'table')
-    df_data_train.to_hdf(train_set_name, key='data', encoding='utf-8', format='table', mode='a')
-    df_img_train.to_hdf(train_set_name, key='images', encoding='utf-8', format='table', mode='a')
+    variant = f.create_group('split')
+    # Training dataset
+    group = variant.create_group('training')
+    group.create_dataset(name='vel_left', data=synch_data[:train_size, 2], compression='gzip')
+    group.create_dataset(name='vel_right', data=synch_data[:train_size, 3], compression='gzip')
+    group.create_dataset(name='bag_ID', data=synch_data[:train_size, 4], compression='gzip')
+    group.create_dataset(name='img_timestamp', data=synch_data[:train_size, 0], compression='gzip')
+    group.create_dataset(name='vel_timestamp', data=synch_data[:train_size, 1], compression='gzip')
 
+    group.create_dataset(name='images', data=synch_imgs[:train_size], compression='gzip')
 
-    # df_all_test.to_hdf(test_set_name, 'table')
-    df_data_test.to_hdf(test_set_name, key='data', encoding='utf-8', format='table', mode='a')
-    df_img_test.to_hdf(test_set_name, key='images', encoding='utf-8', format='table', mode='a')
+    # Testing dataset
+    group = variant.create_group('testing')
+    group.create_dataset(name='vel_left', data=synch_data[train_size:, 2], compression='gzip')
+    group.create_dataset(name='vel_right', data=synch_data[train_size:, 3], compression='gzip')
+    group.create_dataset(name='bag_ID', data=synch_data[train_size:, 4], compression='gzip')
+    group.create_dataset(name='img_timestamp', data=synch_data[train_size:, 0], compression='gzip')
+    group.create_dataset(name='vel_timestamp', data=synch_data[train_size:, 1], compression='gzip')
 
-    print("\nThe total {} data were split into {} training and {} test datasets and saved in {} "
-          "directory.".format(synch_data.shape[0], df_data_train.shape[0], df_data_test.shape[0], data_directory))
+    group.create_dataset(name='images', data=synch_imgs[train_size:], compression='gzip')
+
+    print("\nThe total {} data were split into {} training and {} test dataset points and saved in {} "
+          "directory.".format(synch_data.shape[0], train_size, synch_data.shape[0]-train_size, data_directory))
+
 
 if __name__ == "__main__":
     main()

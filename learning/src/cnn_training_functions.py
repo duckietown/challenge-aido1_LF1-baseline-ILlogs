@@ -2,10 +2,11 @@
 
 import tensorflow as tf
 import numpy as np
-import pandas as pd
+# import pandas as pd
 import os
+import h5py
 
-def load_data(file_path):
+def load_data(file_path, train_or_test="training"):
     '''
     Loads images and velocities from hdf files and checks for potential mismatch in the number of images and velocities
 
@@ -14,17 +15,22 @@ def load_data(file_path):
     '''
 
     # read dataframes
-    df_data = pd.read_hdf(file_path, key='data', encoding='utf-8')
-    df_img = pd.read_hdf(file_path, key='images', encoding='utf-8')
+    with h5py.File(file_path, 'r') as f:
+        data = f["split"][train_or_test]
+        vel_left = data['vel_left'][()]
+        vel_right = data['vel_right'][()]
+        print("Type velocities:", type(vel_left))
+        print("Shaoe velocities:", vel_left.shape)
 
-    # extract omega velocities from dataset
-    # velocities = df_data['vel_omega'].values
-    velocities = df_data[['vel_left', 'vel_right']].values
-    velocities = np.reshape(velocities, (-1, 2))
-    # extract images from dataset
-    images = df_img[:]
-    print("Images type:", type(images))
-    print('The dataset is loaded: {} images and {} omega velocities.'.format(images.shape[0], velocities.shape[0]))
+        velocities = np.concatenate((vel_left[:, np.newaxis], vel_right[:, np.newaxis]), axis=1)
+        images = data['images'][()]
+
+        print("Type velocities:", type(velocities))
+        print("Shaoe velocities:", velocities.shape)
+        print("Sample velocities:", velocities[:20])
+        print("Images type:", type(images))
+        print("Sample images:", images.shape)
+        print('The dataset is loaded: {} images and {} omega velocities.'.format(images.shape[0], velocities.shape[0]))
 
     if not images.shape[0] == velocities.shape[0]:
         raise ValueError("The number of images and velocities must be the same.")
