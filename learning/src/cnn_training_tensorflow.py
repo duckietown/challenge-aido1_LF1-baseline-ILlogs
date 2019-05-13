@@ -7,6 +7,7 @@ from cnn_training_functions import *
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
+
 def main():
 
     # define path for training dataset
@@ -50,6 +51,7 @@ def main():
     training_time = (time.time() - start_time) / 60
 
     print('Finished training of {} in {} minutes.'.format(model_name, training_time))
+
 
 if __name__ == '__main__':
     main()

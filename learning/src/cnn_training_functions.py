@@ -1,35 +1,26 @@
 #!/usr/bin/env python
-
 import tensorflow as tf
 import numpy as np
-# import pandas as pd
 import os
 import h5py
 
+
 def load_data(file_path, train_or_test="training"):
-    '''
+    """
     Loads images and velocities from hdf files and checks for potential mismatch in the number of images and velocities
-
     :param file_path: path to the hdf file from which it will extract the data
+           train_or_test: String specifies whether training or testset partition is loaded.
     :return: velocities, images as numpy arrays
-    '''
-
+    """
     # read dataframes
     with h5py.File(file_path, 'r') as f:
         data = f["split"][train_or_test]
         vel_left = data['vel_left'][()]
         vel_right = data['vel_right'][()]
-        print("Type velocities:", type(vel_left))
-        print("Shaoe velocities:", vel_left.shape)
 
         velocities = np.concatenate((vel_left[:, np.newaxis], vel_right[:, np.newaxis]), axis=1)
         images = data['images'][()]
 
-        print("Type velocities:", type(velocities))
-        print("Shaoe velocities:", velocities.shape)
-        print("Sample velocities:", velocities[:20])
-        print("Images type:", type(images))
-        print("Sample images:", images.shape)
         print('The dataset is loaded: {} images and {} omega velocities.'.format(images.shape[0], velocities.shape[0]))
 
     if not images.shape[0] == velocities.shape[0]:
@@ -165,7 +156,6 @@ class CNN_training:
         logs_train_path = os.path.join(model_path, 'train')
         logs_test_path = os.path.join(model_path, 'test')
         graph_path = os.path.join(model_path, 'graph')
-
 
         # manual scalar summaries for loss tracking
         man_loss_summary = tf.Summary()
