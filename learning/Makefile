@@ -36,7 +36,7 @@ copy_for_submission:
 # If only CPU is available for computation on your machine,
 # change the line "pip install tensorflow-gpu" to "tensorflow" (without the GPU option)
 install-dependencies:
-				virtualenv $(VIRTUALENV) --python=python2.7; \
+				virtualenv $(VIRTUALENV) --python=python3.7; \
 				. $(VIRTUALENV)/bin/activate; \
 				pip install --no-cache-dir -r requirements.txt; \
 				pip install --upgrade tensorflow-gpu==1.13.1;
