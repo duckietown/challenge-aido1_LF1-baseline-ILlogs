@@ -13,6 +13,7 @@ from extract_data_functions import image_preprocessing, synchronize_data
 # A collection of ros messages coming from a single topic.
 MessageCollection = collections.namedtuple("MessageCollection", ["topic", "type", "messages"])
 
+
 def extract_messages(path, requested_topics):
 
     # check if path is string and requested_topics a list
@@ -39,6 +40,7 @@ def extract_messages(path, requested_topics):
 
     return extracted_messages
 
+
 def main():
 
     # define the list of topics that you want to extract
@@ -59,9 +61,6 @@ def main():
         os.makedirs(data_directory)
 
     cvbridge_object = cv_bridge.CvBridge()
-
-    # create a dataframe to store the data for all bag files
-    # df_all = pd.DataFrame()
 
     first_time = True
 
@@ -155,88 +154,120 @@ def main():
 
         temp_synch_data, temp_synch_imgs = synchronize_data(df_imgs, df_cmds, bag_ID)
 
+        print("\nShape of new data: {}, shape of new images: {}\n".format(temp_synch_data.shape, temp_synch_imgs.shape))
+
+        # define size of train and test dataset. Currently beginning 90% of a file are training, the rest testing
+        train_size = int(0.9 * temp_synch_data.shape[0])
+        test_size = temp_synch_data.shape[0] - train_size
+
+        # Define the name of the dataset .h5 file
+        dataset_name = os.path.join(data_directory, 'LF_dataset.h5')
+        # save train and test datasets to .h5 files
+
+        # ATTENTION 1 !!
+        #  If the datasets become too large, you could face memory errors on laptops.
+        # If you face memory errors while saving the following files, split the data to multiple .h5 files.
+
+        # ATTENTION 2 !!
+        # The .h5 files are tricky and require special attention. In these files you save compressed objects and you can
+        # have more than one objects saved in the same file. If for example we have two different dataframes df1 and df2,
+        # then df1.to_hdf('file.h5', key='df1') and df2.to_hdf('file.h5', key='df2') will result to both df1, df2 to be
+        # saved in 'file.h5' file but with different key for each dataframe. However, if we save the same dataframe to the
+        # same .h5 file with the same key, then in this file you will have the same information twice as different objects
+        # and thus the size of the .h5 file will be double for no reason and without any warning. As a result, here since
+        # the key does not change, we will check if the .h5 file exists before saving the new data, and if it exists we will
+        # first remove the previous file ad then save the new data.
+
+        # For the first time the data file is created. Later data is only appended.
         if first_time:
-            synch_data = copy(temp_synch_data)
-            synch_imgs = copy(temp_synch_imgs)
-            first_time = False
+            first_time = False  # First time write file, afterwards append only
 
+            # check if file already exist in the data directory and if yes it is removed before saving the new file
+            if os.path.isfile(dataset_name):
+                os.remove(dataset_name)
+
+            print("Creating lane following training set")
+            with h5py.File(dataset_name, 'w') as f:
+                description = """
+                This is a lane following training based on Rosbag logs. 
+                Attributes
+                ==========
+                Description: 
+                The dataset contains recording of Duckiebots driving around. Recorded are observed images, velocity commands 
+                for left and right wheels and the corresponding time stamps. 
+                Keys:
+                "vel_left": Recorded left wheel velocity command
+                "vel_right": Recorded right wheel velocity command
+                "bag_ID": ID of rosbag 
+                "img_timestamp":
+                "vel_timestamp":
+                Variants
+                ========
+                split: Split into 'training', 'test' datasets. There are {} training points and {} test points.
+                """.format(train_size, temp_synch_data.shape[0]-train_size)
+                f.attrs['description'] = description
+                variant = f.create_group('split')
+                # Training dataset
+                group = variant.create_group('training')
+                group.create_dataset(name='vel_left', data=temp_synch_data[:train_size, 2], compression='gzip')
+                group.create_dataset(name='vel_right', data=temp_synch_data[:train_size, 3], compression='gzip')
+                group.create_dataset(name='bag_ID', data=temp_synch_data[:train_size, 4], compression='gzip')
+                group.create_dataset(name='img_timestamp', data=temp_synch_data[:train_size, 0], compression='gzip')
+                group.create_dataset(name='vel_timestamp', data=temp_synch_data[:train_size, 1], compression='gzip')
+
+                group.create_dataset(name='images', data=temp_synch_imgs[:train_size], compression='gzip')
+
+                # Testing dataset
+                group = variant.create_group('testing')
+                group.create_dataset(name='img_timestamp', data=temp_synch_data[train_size:, 0], compression='gzip')
+                group.create_dataset(name='vel_timestamp', data=temp_synch_data[train_size:, 1], compression='gzip')
+                group.create_dataset(name='vel_left', data=temp_synch_data[train_size:, 2], compression='gzip')
+                group.create_dataset(name='vel_right', data=temp_synch_data[train_size:, 3], compression='gzip')
+                group.create_dataset(name='bag_ID', data=temp_synch_data[train_size:, 4], compression='gzip')
+
+                group.create_dataset(name='images', data=temp_synch_imgs[train_size:], compression='gzip')
+
+                print("\nA total {} data points were split into {} training and {} test dataset points and saved in {} "
+                      "directory.".format(temp_synch_data.shape[0], train_size, test_size, data_directory))
+
+        # Appending new data here
         else:
-            synch_data = np.vstack((synch_data, temp_synch_data))
-            synch_imgs = np.vstack((synch_imgs, temp_synch_imgs))
+            with h5py.File(dataset_name, 'a') as f:
+                description = """
+                This is a lane following training based on Rosbag logs. 
+                Attributes
+                ==========
+                Description: 
+                The dataset contains recording of Duckiebots driving around. Recorded are observed images, velocity commands 
+                for left and right wheels and the corresponding time stamps. 
+                Keys:
+                "vel_left": Recorded left wheel velocity command
+                "vel_right": Recorded right wheel velocity command
+                "bag_ID": ID of rosbag 
+                "img_timestamp":
+                "vel_timestamp":
+                Variants
+                ========
+                split: Split into 'training', 'test' datasets. There are {} training points and {} test points.
+                """.format(f['split']['training']['vel_left'].shape[0] + train_size,
+                           f['split']['testing']['vel_left'].shape[0] + test_size)
+                f.attrs['description'] = description
 
-        print("\nShape of total data: {} , shape of total images: {}\n".format(synch_data.shape, synch_imgs.shape))
+                for i, key in enumerate(['img_timestamp', 'vel_timestamp', 'vel_left', 'vel_right', 'bag_ID', 'images']):
+                    # Resize existing data to make space for data from new bag file
+                    f['split']['training'][key].resize(f['split']['training'][key].shape[0] + train_size, axis=0)
+                    f['split']['testing'][key].resize(f['split']['testing'][key].shape[0] + test_size, axis=0)
+                    # Appending of new data to end of resized hdf5 entries
+                    if i < 5:
+                        f['split']['training'][key][-train_size:] = temp_synch_data[:train_size, i]
+                        f['split']['testing'][key][-test_size:] = temp_synch_data[train_size:, i]
+                    else:
+                        f['split']['training'][key][-train_size:] = temp_synch_imgs[:train_size]
+                        f['split']['testing'][key][-test_size:] = temp_synch_imgs[train_size:]
 
-    print("Synchronization of all data is finished.\n")
-
-    # define size of train dataset
-    train_size = int(0.9 * synch_data.shape[0])
-
-    # save train and test datasets to .h5 files
-
-    # ATTENTION 1 !!
-    #  If the datasets become too large, you could face memory errors on laptops.
-    # If you face memory errors while saving the following files, split the data to multiple .h5 files.
-
-    # ATTENTION 2 !!
-    # The .h5 files are tricky and require special attention. In these files you save compressed objects and you can
-    # have more than one objects saved in the same file. If for example we have two different dataframes df1 and df2,
-    # then df1.to_hdf('file.h5', key='df1') and df2.to_hdf('file.h5', key='df2') will result to both df1, df2 to be
-    # saved in 'file.h5' file but with different key for each dataframe. However, if we save the same dataframe to the
-    # same .h5 file with the same key, then in this file you will have the same information twice as different objects
-    # and thus the size of the .h5 file will be double for no reason and without any warning. As a result, here since
-    # the key does not change, we will check if the .h5 file exists before saving the new data, and if it exists we will
-    # first remove the previous file ad then save the new data.
-
-    # define the name of the dataset .h5 file
-    dataset_name = os.path.join(data_directory, 'LF_dataset.h5')
-
-    # check if file already exist in the data directory and if yes it is removed before saving the new file
-    if os.path.isfile(dataset_name):
-        os.remove(dataset_name)
-
-    print("Creating lane following training set")
-    f = h5py.File(dataset_name, 'w')
-    description = """
-    This is a lane following training based on Rosbag logs. 
-    Attributes
-    ==========
-    Description: 
-    The dataset contains recording of Duckiebots driving around. Recorded are observed images, velocity commands 
-    for left and right wheels and the corresponding time stamps. 
-    Keys:
-    "vel_left": Recorded left wheel velocity command
-    "vel_right": Recorded right wheel velocity command
-    "bag_ID": ID of rosbag 
-    "img_timestamp":
-    "vel_timestamp":
-    Variants
-    ========
-    split: Split into 'training', 'test' datasets. There are {} training points and {} test points.
-    """.format(train_size, synch_data.shape[0]-train_size)
-
-    variant = f.create_group('split')
-    # Training dataset
-    group = variant.create_group('training')
-    group.create_dataset(name='vel_left', data=synch_data[:train_size, 2], compression='gzip')
-    group.create_dataset(name='vel_right', data=synch_data[:train_size, 3], compression='gzip')
-    group.create_dataset(name='bag_ID', data=synch_data[:train_size, 4], compression='gzip')
-    group.create_dataset(name='img_timestamp', data=synch_data[:train_size, 0], compression='gzip')
-    group.create_dataset(name='vel_timestamp', data=synch_data[:train_size, 1], compression='gzip')
-
-    group.create_dataset(name='images', data=synch_imgs[:train_size], compression='gzip')
-
-    # Testing dataset
-    group = variant.create_group('testing')
-    group.create_dataset(name='vel_left', data=synch_data[train_size:, 2], compression='gzip')
-    group.create_dataset(name='vel_right', data=synch_data[train_size:, 3], compression='gzip')
-    group.create_dataset(name='bag_ID', data=synch_data[train_size:, 4], compression='gzip')
-    group.create_dataset(name='img_timestamp', data=synch_data[train_size:, 0], compression='gzip')
-    group.create_dataset(name='vel_timestamp', data=synch_data[train_size:, 1], compression='gzip')
-
-    group.create_dataset(name='images', data=synch_imgs[train_size:], compression='gzip')
-
-    print("\nThe total {} data were split into {} training and {} test dataset points and saved in {} "
-          "directory.".format(synch_data.shape[0], train_size, synch_data.shape[0]-train_size, data_directory))
+                print("\nSize was appended to {} data points were split into {} training and {} test dataset points "
+                      "and saved in {} directory.".format(f['split']['training'][key].shape[0], train_size,
+                                                          temp_synch_data.shape[0] - train_size, data_directory))
 
 
 if __name__ == "__main__":
