@@ -209,23 +209,35 @@ def main():
                 variant = f.create_group('split')
                 # Training dataset
                 group = variant.create_group('training')
-                group.create_dataset(name='vel_left', data=temp_synch_data[:train_size, 2], compression='gzip')
-                group.create_dataset(name='vel_right', data=temp_synch_data[:train_size, 3], compression='gzip')
-                group.create_dataset(name='bag_ID', data=temp_synch_data[:train_size, 4], compression='gzip')
-                group.create_dataset(name='img_timestamp', data=temp_synch_data[:train_size, 0], compression='gzip')
-                group.create_dataset(name='vel_timestamp', data=temp_synch_data[:train_size, 1], compression='gzip')
+                group.create_dataset(name='vel_left', data=temp_synch_data[:train_size, 2], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='vel_right', data=temp_synch_data[:train_size, 3], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='bag_ID', data=temp_synch_data[:train_size, 4], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='img_timestamp', data=temp_synch_data[:train_size, 0], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='vel_timestamp', data=temp_synch_data[:train_size, 1], maxshape=(None,),
+                                     compression='gzip')
 
-                group.create_dataset(name='images', data=temp_synch_imgs[:train_size], compression='gzip')
+                group.create_dataset(name='images', data=temp_synch_imgs[:train_size], maxshape=(None, None),
+                                     compression='gzip')
 
                 # Testing dataset
                 group = variant.create_group('testing')
-                group.create_dataset(name='img_timestamp', data=temp_synch_data[train_size:, 0], compression='gzip')
-                group.create_dataset(name='vel_timestamp', data=temp_synch_data[train_size:, 1], compression='gzip')
-                group.create_dataset(name='vel_left', data=temp_synch_data[train_size:, 2], compression='gzip')
-                group.create_dataset(name='vel_right', data=temp_synch_data[train_size:, 3], compression='gzip')
-                group.create_dataset(name='bag_ID', data=temp_synch_data[train_size:, 4], compression='gzip')
+                group.create_dataset(name='img_timestamp', data=temp_synch_data[train_size:, 0], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='vel_timestamp', data=temp_synch_data[train_size:, 1], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='vel_left', data=temp_synch_data[train_size:, 2], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='vel_right', data=temp_synch_data[train_size:, 3], maxshape=(None,),
+                                     compression='gzip')
+                group.create_dataset(name='bag_ID', data=temp_synch_data[train_size:, 4], maxshape=(None,),
+                                     compression='gzip')
 
-                group.create_dataset(name='images', data=temp_synch_imgs[train_size:], compression='gzip')
+                group.create_dataset(name='images', data=temp_synch_imgs[train_size:], maxshape=(None, None),
+                                     compression='gzip')
 
                 print("\nA total {} data points were split into {} training and {} test dataset points and saved in {} "
                       "directory.".format(temp_synch_data.shape[0], train_size, test_size, data_directory))
@@ -265,8 +277,10 @@ def main():
                         f['split']['training'][key][-train_size:] = temp_synch_imgs[:train_size]
                         f['split']['testing'][key][-test_size:] = temp_synch_imgs[train_size:]
 
-                print("\nSize was appended to {} data points were split into {} training and {} test dataset points "
-                      "and saved in {} directory.".format(f['split']['training'][key].shape[0], train_size,
+                print("\nTraining size was appended to {} data points. Testing size was appended to {}. "
+                      "With {} new training and {} new test dataset points "
+                      "and saved in {} directory.".format(f['split']['training'][key].shape[0],
+                                                          f['split']['testing'][key].shape[0], train_size,
                                                           temp_synch_data.shape[0] - train_size, data_directory))
 
 
