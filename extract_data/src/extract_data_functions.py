@@ -18,7 +18,7 @@ def image_preprocessing(image):
     new_img = cv2.cvtColor(new_img[:, :, :], cv2.COLOR_RGB2GRAY)
 
     # resize the image from 320x640 to 48x96
-    new_img = cv2.resize( new_img, (image_final_width, image_final_height) ) # this returns image 48x96 and not 96x48
+    new_img = cv2.resize(new_img, (image_final_width, image_final_height))  # this returns image 48x96 and not 96x48
 
     # normalize images to range [0, 1] (divide each pixel by 255)
     # first transform the array of int to array of float, else the division with 255 will return an array of 0s
@@ -40,7 +40,8 @@ def synchronize_data(df_imgs, df_cmds, bag_ID):
     # for each omega velocity, find the respective image
     for cmd_index, cmd_time in enumerate(df_cmds['vel_timestamp']):
 
-        # we keep only the data for which the duckiebot is moving (we do not want the duckiebot to learn to remain at rest)
+        # we keep only the data for which the duckiebot is moving
+        # (we do not want the duckiebot to learn to remain at rest)
         if ( df_cmds['vel_left'][cmd_index] != 0) & ( df_cmds['vel_right'][cmd_index] != 0):
 
             # find index of image with the closest timestamp to wheels' velocities timestamp
@@ -84,8 +85,8 @@ def synchronize_data(df_imgs, df_cmds, bag_ID):
                     synch_data = np.vstack((synch_data, temp_data))
                     synch_imgs = np.vstack((synch_imgs, temp_imgs))
 
-
-    print("Synchronization of {}.bag file is finished. From the initial {} images and {} velocities commands, the extracted "
+    print("Synchronization of {}.bag file is finished. "
+          "From the initial {} images and {} velocities commands, the extracted "
           "synchronized data are {}.".format(bag_ID, df_imgs.shape[0], df_cmds.shape[0], synch_data.shape[0]))
 
     # return the synchronized data to the main function

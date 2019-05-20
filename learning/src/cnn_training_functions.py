@@ -74,7 +74,7 @@ class CNN_training:
 
         # define loss function and encapsulate its scope
         with tf.name_scope("Loss"):
-            return tf.reduce_mean( tf.square(self.vel_pred - self.vel_true) )
+            return tf.reduce_mean(tf.square(self.vel_pred - self.vel_true))
 
     def model(self, x):
         '''
@@ -195,8 +195,8 @@ class CNN_training:
             # The important file to create is the 'graph.pb' which will be used to freeze the TensorFlow graph.
             # The 'graph.pbtxt' file is just the same graph in txt format in case you want to check the format of the
             # saved information.
-            tf.train.write_graph(tf_graph.as_graph_def(), graph_path, 'graph.pbtxt', as_text= True)
-            tf.train.write_graph(tf_graph.as_graph_def(), graph_path, 'graph.pb', as_text= False)
+            tf.train.write_graph(tf_graph.as_graph_def(), graph_path, 'graph.pbtxt', as_text=True)
+            tf.train.write_graph(tf_graph.as_graph_def(), graph_path, 'graph.pb', as_text=False)
 
             for epoch in range(self.epochs):
 
@@ -216,7 +216,8 @@ class CNN_training:
 
                 # print train and test loss to monitor progress during training every 50 epochs
                 if epoch % 50 == 0:
-                    print("Epoch: {:04d} , train_loss = {:.6f} , test_loss = {:.6f}".format(epoch+1, avg_train_loss, avg_test_loss))
+                    print("Epoch: {:04d} , train_loss = {:.6f} , "
+                          "test_loss = {:.6f}".format(epoch+1, avg_train_loss, avg_test_loss))
 
                 # save weights every 100 epochs
                 if epoch % 100 == 0:

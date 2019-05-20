@@ -11,7 +11,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 def main():
 
     # define path for training dataset
-    file_data_path = os.path.join(os.getcwd(), 'data', 'LF_dataset.h5')
+    if not os.path.exists("data"):
+        file_data_path = os.path.join(os.getcwd(), '../data', 'LF_dataset.h5')
+    else:
+        file_data_path = os.path.join(os.getcwd(), 'data', 'LF_dataset.h5')
 
     # define batch_size (e.g 50, 100)
     batch_size = 100
@@ -21,7 +24,7 @@ def main():
     optimizer = "GDS"
 
     # define learning rate (e.g 1E-3, 1E-4, 1E-5):
-    learning_rate = 1E-4
+    learning_rate = 1E-3
 
     # define total epochs (e.g 1000, 5000, 10000)
     epochs = 1000

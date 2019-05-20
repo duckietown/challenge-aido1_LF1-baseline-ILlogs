@@ -53,7 +53,8 @@ def main():
                 ]
 
     # define the bags_directory in order to extract the data
-    bags_directory = os.path.join(os.getcwd(), "data", "bag_files")
+    # bags_directory = os.path.join(os.getcwd(), "data", "bag_files")
+    bags_directory = os.path.join(os.getcwd(), "logs")
 
     # define data_directory
     data_directory = 'data'
@@ -73,7 +74,9 @@ def main():
         bag_ID = file.partition(".bag")[0]
 
         # extract the duckiebot name to complete the definition of the nodes
-        duckiebot_name = file.partition("_")[2].partition(".bag")[0]
+        duckiebot_name = file.partition("_")[0].partition(".bag")[0]
+
+        print("Duckiebot name:", duckiebot_name)
 
         # complete the topics names with the duckiebot name in the beginning
         ros_topics_temp = copy(ros_topics)
@@ -281,7 +284,7 @@ def main():
                       "With {} new training and {} new test dataset points "
                       "and saved in {} directory.".format(f['split']['training'][key].shape[0],
                                                           f['split']['testing'][key].shape[0], train_size,
-                                                          temp_synch_data.shape[0] - train_size, data_directory))
+                                                          test_size, data_directory))
 
 
 if __name__ == "__main__":

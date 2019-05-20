@@ -15,11 +15,13 @@ RUN apt-get update -y && apt-get install -y --no-install-recommends \
 # let's create our workspace, we don't want to clutter the container
 # RUN mkdir /workspace
 
+RUN apt-get update
+
 # Required for python to find rosbag package
 ENV PYTHONPATH="/opt/ros/kinetic/lib/python2.7/dist-packages/:${PYTHONPATH}"
 
-RUN apt-get update && apt-get install -y ros-kinetic-cv-bridge
-
+RUN apt-get install -y ros-kinetic-cv-bridge
+RUN apt-get update
 
 # we make the workspace our working directory
 WORKDIR /workspace
@@ -34,5 +36,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install dependencies
 RUN mkdir /workspace/data
 
+# Download logs
+RUN python src/download_logs.py
+
 # Extract data into useable format
 RUN python src/extract_data.py
+
+# Remove bagfiles after extracting training data - ! Please adapt if data is still required
+RUN rm -rf data/bag_files
