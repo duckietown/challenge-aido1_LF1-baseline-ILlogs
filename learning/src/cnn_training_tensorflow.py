@@ -5,7 +5,7 @@ import os
 from cnn_training_functions import *
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 def main():
@@ -24,7 +24,7 @@ def main():
     optimizer = "GDS"
 
     # define learning rate (e.g 1E-3, 1E-4, 1E-5):
-    learning_rate = 1E-3
+    learning_rate = 3E-2
 
     # define total epochs (e.g 1000, 5000, 10000)
     epochs = 1000
