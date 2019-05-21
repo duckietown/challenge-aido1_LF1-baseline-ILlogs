@@ -91,7 +91,7 @@ class CNN_training:
             x_img = tf.reshape(x, [-1, 48, 96, 1])
 
             # define 1st convolutional layer
-            hl_conv_1 = tf.layers.conv2d(x_img, kernel_size=5, filters=2, padding="valid",
+            hl_conv_1 = tf.layers.conv2d(x_img, kernel_size=5, filters=6, padding="valid",
                                          activation=tf.nn.relu, name="conv_layer_1")
 
             max_pool_1 = tf.layers.max_pooling2d(hl_conv_1, pool_size=2, strides=2)

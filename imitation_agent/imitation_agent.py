@@ -13,8 +13,8 @@ from cnn_predictions import fun_img_preprocessing
 
 @dataclass
 class ImitationAgentConfig:
-    pwm_left_interval: Tuple[float, float] = (0.2, 0.7)
-    pwm_right_interval: Tuple[float, float] = (0.2, 0.7)
+    pwm_left_interval: Tuple[float, float] = (0.2, 1.0)
+    pwm_right_interval: Tuple[float, float] = (0.2, 1.0)
     current_image: np.ndarray = np.zeros((480, 640))
 
 
