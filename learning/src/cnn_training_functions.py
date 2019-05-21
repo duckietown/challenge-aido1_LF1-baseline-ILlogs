@@ -90,14 +90,15 @@ class CNN_training:
             # [-1: arbitrary num of images, img_height, img_width, num_channels]
             x_img = tf.reshape(x, [-1, 48, 96, 1])
 
+            # batch_normed = tf.keras.layers.BatchNormalization()(x_img, training=mode)
             # define 1st convolutional layer
-            hl_conv_1 = tf.layers.conv2d(x_img, kernel_size=5, filters=6, padding="valid",
+            hl_conv_1 = tf.layers.conv2d(x_img, kernel_size=9, filters=8, padding="valid",
                                          activation=tf.nn.relu, name="conv_layer_1")
 
             max_pool_1 = tf.layers.max_pooling2d(hl_conv_1, pool_size=2, strides=2)
 
             # define 2nd convolutional layer
-            hl_conv_2 = tf.layers.conv2d(max_pool_1, kernel_size=5, filters=8, padding="valid",
+            hl_conv_2 = tf.layers.conv2d(max_pool_1, kernel_size=5, filters=16, padding="valid",
                                          activation=tf.nn.relu, name="conv_layer_2")
 
             max_pool_2 = tf.layers.max_pooling2d(hl_conv_2, pool_size=2, strides=2)
@@ -108,8 +109,11 @@ class CNN_training:
             # add 1st fully connected layers to the neural network
             hl_fc_1 = tf.layers.dense(inputs=conv_flat, units=64, activation=tf.nn.relu, name="fc_layer_1")
 
+            # add 1st fully connected layers to the neural network
+            hl_fc_1_2 = tf.layers.dense(inputs=hl_fc_1, units=32, activation=tf.nn.relu, name="fc_layer_1_2")
+
             # add 2nd fully connected layers to predict the driving commands
-            hl_fc_2 = tf.layers.dense(inputs=hl_fc_1, units=2, name="fc_layer_2")
+            hl_fc_2 = tf.layers.dense(inputs=hl_fc_1_2, units=2, name="fc_layer_2")
 
             return hl_fc_2
 
@@ -201,7 +205,8 @@ class CNN_training:
             for epoch in range(self.epochs):
 
                 # run train cycle
-                avg_train_loss = self.epoch_iteration(train_velocities.shape[0], train_images, train_velocities, 'train')
+                avg_train_loss = self.epoch_iteration(train_velocities.shape[0], train_images,
+                                                      train_velocities, 'train')
 
                 # save the training loss using the manual summaries
                 man_loss_summary.value[0].simple_value = avg_train_loss
