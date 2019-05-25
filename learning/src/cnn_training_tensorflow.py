@@ -5,7 +5,7 @@ import os
 from cnn_training_functions import *
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "6"
 
 
 def main():
@@ -21,10 +21,10 @@ def main():
 
     # define which optimizer you want to use (e.g "Adam", "GDS"). For "Adam" and "GDS" this script will take care the rest.
     # ATTENTION !! If you want to choose a different optimizer from these two, you will have to add it in the training functions.
-    optimizer = "GDS"
+    optimizer = "Adam"
 
     # define learning rate (e.g 1E-3, 1E-4, 1E-5):
-    learning_rate = 3E-2
+    learning_rate = 1E-3
 
     # define total epochs (e.g 1000, 5000, 10000)
     epochs = 1000

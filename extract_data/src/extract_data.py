@@ -23,7 +23,7 @@ def extract_messages(path, requested_topics):
     bag = rosbag.Bag(path)
 
     _, available_topics = bag.get_type_and_topic_info()
-
+    print("Available topics:", available_topics)
     # check if the requested topics exist in bag's topics and if yes extract the messages only for them
     extracted_messages = {}
     for topic in requested_topics:

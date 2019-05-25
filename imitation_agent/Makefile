@@ -21,3 +21,10 @@ push: build
 
 submit:
 	dts challenges submit
+
+# --------- Installing Duckietown Gym locally for fast testing -------------
+# Run "python eval.py" to locally evaluate your model after installing gym-duckietown
+gym-duckietown:
+		git clone https://github.com/duckietown/gym-duckietown.git; \
+		cd gym-duckietown; \
+		pip3 install --user --no-cache -e .;

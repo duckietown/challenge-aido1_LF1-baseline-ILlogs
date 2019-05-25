@@ -4,6 +4,36 @@ import numpy as np
 import os
 import h5py
 
+L2_LAMBDA = 1e-04
+
+
+def vel_omega_from_cmds(vel_left, vel_right):
+    # compute duty cycle gain
+    # Distance between the wheels
+    baseline = 0.102
+    # assuming same motor constants k for both motors
+    k_r = 27.0
+    k_l = 27.0
+    gain = 1.0
+    trim = 0.0
+    radius = 0.0318
+
+    k_r_inv = (gain + trim) / k_r
+    k_l_inv = (gain - trim) / k_l
+
+    # Commands are stored as bytes
+    vel_left = vel_left.astype(float)
+    vel_right = vel_right.astype(float)
+
+    # Conversion from motor duty to motor rotation rate
+    omega_r = np.divide(vel_left, k_r_inv)
+    omega_l = np.divide(vel_right, k_l_inv)
+
+    # Compute linear and angular velocity of the platform
+    v = (radius * omega_r + radius * omega_l) / 2.0
+    omega = (radius * omega_r - radius * omega_l) / baseline
+    return v, omega
+
 
 def load_data(file_path, train_or_test="training"):
     """
@@ -17,6 +47,7 @@ def load_data(file_path, train_or_test="training"):
         data = f["split"][train_or_test]
         vel_left = data['vel_left'][()]
         vel_right = data['vel_right'][()]
+        # v, omega = vel_omega_from_cmds(vel_left, vel_right)
 
         velocities = np.concatenate((vel_left[:, np.newaxis], vel_right[:, np.newaxis]), axis=1)
         images = data['images'][()]
@@ -44,6 +75,43 @@ def form_model_name(batch_size, lr, optimizer, epochs):
     return "batch={},lr={},optimizer={},epochs={}".format(batch_size, lr, optimizer, epochs)
 
 
+def _residual_block(x, size, dropout=True, dropout_prob=0.5, seed=None):
+    residual = tf.layers.batch_normalization(x)  # TODO: check if the defaults in Tf are the same as in Keras
+    residual = tf.nn.relu(residual)
+    residual = tf.layers.conv2d(residual, filters=size, kernel_size=3, strides=2, padding='same',
+                                kernel_initializer=tf.keras.initializers.he_normal(seed=seed),
+                                kernel_regularizer=tf.keras.regularizers.l2(L2_LAMBDA))
+    if dropout:
+        residual = tf.nn.dropout(residual, dropout_prob, seed=seed)
+    residual = tf.layers.batch_normalization(residual)
+    residual = tf.nn.relu(residual)
+    residual = tf.layers.conv2d(residual, filters=size, kernel_size=3, padding='same',
+                                kernel_initializer=tf.keras.initializers.he_normal(seed=seed),
+                                kernel_regularizer=tf.keras.regularizers.l2(L2_LAMBDA))
+    if dropout:
+        residual = tf.nn.dropout(residual, dropout_prob, seed=seed)
+
+    return residual
+
+
+def one_residual(x, keep_prob=0.5, seed=None):
+    nn = tf.layers.conv2d(x, filters=32, kernel_size=5, strides=2, padding='same',
+                          kernel_initializer=tf.keras.initializers.he_normal(seed=seed),
+                          kernel_regularizer=tf.keras.regularizers.l2(L2_LAMBDA))
+    nn = tf.layers.max_pooling2d(nn, pool_size=3, strides=2)
+
+    rb_1 = _residual_block(nn, 32, dropout_prob=keep_prob, seed=seed)
+
+    nn = tf.layers.conv2d(nn, filters=32, kernel_size=1, strides=2, padding='same',
+                          kernel_initializer=tf.keras.initializers.he_normal(seed=seed),
+                          kernel_regularizer=tf.keras.regularizers.l2(L2_LAMBDA))
+    nn = tf.keras.layers.add([rb_1, nn])
+
+    nn = tf.layers.flatten(nn)
+
+    return nn
+
+
 class CNN_training:
 
     def __init__(self, batch, epochs, learning_rate, optimizer):
@@ -62,7 +130,7 @@ class CNN_training:
         # define the optimizer
         with tf.name_scope("Optimizer"):
             if self.optimizer == "Adam":
-                return tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
+                return tf.train.AdamOptimizer(learning_rate=self.learning_rate, epsilon=1e-4).minimize(self.loss)
             elif self.optimizer == "GDS":
                 return tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
 
@@ -90,24 +158,25 @@ class CNN_training:
             # [-1: arbitrary num of images, img_height, img_width, num_channels]
             x_img = tf.reshape(x, [-1, 48, 96, 1])
 
+            hl_conv_1 = one_residual(x_img)
             # batch_normed = tf.keras.layers.BatchNormalization()(x_img, training=mode)
             # define 1st convolutional layer
-            hl_conv_1 = tf.layers.conv2d(x_img, kernel_size=9, filters=8, padding="valid",
-                                         activation=tf.nn.relu, name="conv_layer_1")
+            # hl_conv_1 = tf.layers.conv2d(x_img, kernel_size=5, filters=8, padding="valid",
+            #                              activation=tf.nn.relu, name="conv_layer_1")
 
-            max_pool_1 = tf.layers.max_pooling2d(hl_conv_1, pool_size=2, strides=2)
+            # max_pool_1 = tf.layers.max_pooling2d(hl_conv_1, pool_size=2, strides=2)
 
             # define 2nd convolutional layer
-            hl_conv_2 = tf.layers.conv2d(max_pool_1, kernel_size=5, filters=16, padding="valid",
-                                         activation=tf.nn.relu, name="conv_layer_2")
+            # hl_conv_2 = tf.layers.conv2d(max_pool_1, kernel_size=5, filters=16, padding="valid",
+            #                              activation=tf.nn.relu, name="conv_layer_2")
 
-            max_pool_2 = tf.layers.max_pooling2d(hl_conv_2, pool_size=2, strides=2)
+            # max_pool_2 = tf.layers.max_pooling2d(hl_conv_2, pool_size=2, strides=2)
 
             # flatten tensor to connect it with the fully connected layers
-            conv_flat = tf.layers.flatten(max_pool_2)
+            # conv_flat = tf.layers.flatten(max_pool_1)
 
             # add 1st fully connected layers to the neural network
-            hl_fc_1 = tf.layers.dense(inputs=conv_flat, units=64, activation=tf.nn.relu, name="fc_layer_1")
+            hl_fc_1 = tf.layers.dense(inputs=hl_conv_1, units=64, activation=tf.nn.relu, name="fc_layer_1")
 
             # add 1st fully connected layers to the neural network
             hl_fc_1_2 = tf.layers.dense(inputs=hl_fc_1, units=32, activation=tf.nn.relu, name="fc_layer_1_2")
@@ -130,8 +199,9 @@ class CNN_training:
 
         pred_loss = 0
         i = 0
+        n_batches = 0
         while i <= data_size - 1:
-
+            n_batches += 1
             # extract batch
             if i + self.batch_size <= data_size - 1:
                 train_x = x_data[i: i + self.batch_size]
@@ -151,7 +221,7 @@ class CNN_training:
             pred_loss += c
             i += self.batch_size
 
-        return pred_loss
+        return pred_loss / n_batches
 
     def training(self, model_name, train_velocities, train_images, test_velocities, test_images):
 
