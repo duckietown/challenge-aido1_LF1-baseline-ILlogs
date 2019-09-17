@@ -3,11 +3,11 @@
 import os
 from tensorflow.python.tools import freeze_graph
 
-os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"]="3"
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+
 
 def main():
-
     # Define the name of your model
     model_name = 'learned_models'
 
@@ -55,8 +55,8 @@ def main():
         initializer_nodes,
         variable_names_blacklist
     )
-
     print("The frozen graph is saved in {}.".format(output_graph))
+
 
 if __name__ == '__main__':
     main()

@@ -39,9 +39,12 @@ class ImitationAgent:
 
         # We use our "load_graph" function
         graph = load_graph(frozen_model_filename)
+
+        # To check which operations your network is using
+        # uncomment the following commands:
         # We can verify that we can access the list of operations in the graph
-        for op in graph.get_operations():
-            print(op.name)
+        # for op in graph.get_operations():
+        #     print(op.name)
 
         # We access the input and output nodes
         x = graph.get_tensor_by_name('prefix/x:0')

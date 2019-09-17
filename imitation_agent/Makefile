@@ -1,4 +1,4 @@
-repo=aidonode-tensorflow-logs_agent
+repo=challenge-aido_LF-baseline-IL-logs-tensorflow
 # repo=$(shell basename -s .git `git config --get remote.origin.url`)
 branch=$(shell git rev-parse --abbrev-ref HEAD)
 tag=duckietown/$(repo):$(branch)
@@ -21,4 +21,3 @@ push: build
 
 submit:
 	dts challenges submit
-	dts challenges submit --challenge aido2_LFV_r1-v4

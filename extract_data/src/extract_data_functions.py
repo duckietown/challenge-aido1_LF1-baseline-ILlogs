@@ -90,4 +90,3 @@ def synchronize_data(df_imgs, df_cmds, bag_ID):
 
     # return the synchronized data to the main function
     return synch_data, synch_imgs
-
