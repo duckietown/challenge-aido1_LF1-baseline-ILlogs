@@ -27,8 +27,8 @@ learn-docker:
 
 # Extract data from docker container and copies it to the learning repository
 copy_for_submission:
-				sudo chown $$(id -u):$$(id -g) learned_models/frozen_graph.pb; \
-				cp learned_models/frozen_graph.pb ../imitation_agent/;
+				sudo chown $$(id -u):$$(id -g) learned_models/tensorflow_logs/graph/graph.pb; \
+				cp learned_models/tensorflow_logs/graph/graph.pb ../imitation_agent/froze_graph.pb;
 
 # ---------- REGULAR --------------
 # This assumes that you have GPU drivers installed already.
