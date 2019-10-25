@@ -24,7 +24,7 @@ def main():
     learning_rate = 1E-4
 
     # define total epochs (e.g 1000, 5000, 10000)
-    epochs = 1000
+    epochs = 5
 
     # read train data
     print('Reading train dataset')
