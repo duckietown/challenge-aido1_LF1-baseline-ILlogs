@@ -1,5 +1,5 @@
 **
 !src/*.py
-!requirements.txt
+!requirements*
 !*.pb
 !data/*.h5
