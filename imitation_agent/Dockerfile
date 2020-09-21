@@ -1,5 +1,11 @@
+ARG AIDO_REGISTRY
 
-FROM duckietown/challenge-aido_lf-template-tensorflow:daffy
+FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-tensorflow:daffy
+
+ARG PIP_INDEX_URL
+ENV PIP_INDEX_URL=${PIP_INDEX_URL}
+RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
+
 
 # let's create our workspace, we don't want to clutter the container
 RUN rm -r /workspace; mkdir /workspace
