@@ -1,2 +1,2 @@
 submit-bea:
-	make -C imitation_learning submit-bea
+	make -C imitation_agent submit-bea
