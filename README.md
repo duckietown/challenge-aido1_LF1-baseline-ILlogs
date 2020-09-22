@@ -13,7 +13,7 @@ For submitting, please follow [the instructions available in the book][book].
 
 Note: In particular you will need to set a token and specify your docker username before submitting.
 
-[book]: http://docs.duckietown.org/DT19/AIDO/out/
+[book]: https://docs.duckietown.org/daffy/AIDO/out/
 
 [online]: https://challenges.duckietown.org/v4/humans/challenges/aido2-LF-sim-validation
 
