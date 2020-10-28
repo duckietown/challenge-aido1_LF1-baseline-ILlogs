@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 from dataclasses import dataclass
-from typing import Tuple
 
-import tensorflow as tf
 import numpy as np
-
-from aido_schemas import EpisodeStart, protocol_agent_duckiebot1, PWMCommands, Duckiebot1Commands, LEDSCommands, RGB, \
-    wrap_direct, Context, Duckiebot1Observations, JPGImage
-
-from graph_utils import load_graph
+import tensorflow as tf
 from cnn_predictions import fun_img_preprocessing
+from graph_utils import load_graph
+
+from aido_schemas import (Context, DB20Commands, DB20Observations, EpisodeStart, JPGImage,
+                          LEDSCommands, protocol_agent_DB20, PWMCommands, RGB, wrap_direct)
+
 
 @dataclass
 class ImitationAgentConfig:
@@ -30,7 +29,7 @@ class ImitationAgent:
     def on_received_episode_start(self, context: Context, data: EpisodeStart):
         context.info(f'Starting episode "{data.episode_name}".')
 
-    def on_received_observations(self, data: Duckiebot1Observations):
+    def on_received_observations(self, data: DB20Observations):
         camera: JPGImage = data.camera
         self.config.current_image = jpg2rgb(camera.jpg_data)
 
@@ -73,14 +72,16 @@ class ImitationAgent:
         led_commands = LEDSCommands(grey, grey, grey, grey, grey)
         pwm_commands = PWMCommands(motor_left=float(pwm_left),
                                    motor_right=float(pwm_right))
-        commands = Duckiebot1Commands(pwm_commands, led_commands)
+        commands = DB20Commands(pwm_commands, led_commands)
         context.write('commands', commands)
 
     def finish(self, context: Context):
         context.info('finish()')
 
+
 from PIL import Image
 import io
+
 
 def jpg2rgb(image_data: bytes) -> np.ndarray:
     """ Reads JPG bytes as RGB"""
@@ -90,6 +91,7 @@ def jpg2rgb(image_data: bytes) -> np.ndarray:
     assert data.ndim == 3
     assert data.dtype == np.uint8
     return data
+
 
 def simulation_scaling(action):
     """
@@ -107,7 +109,7 @@ def simulation_scaling(action):
     trim = 0.0
     radius = 0.0318
 
-    original_v = (action[0] + action[1])/2.0
+    original_v = (action[0] + action[1]) / 2.0
     original_omega = (action[1] - action[0]) * radius / baseline / 2.0
     vel = 0.25
     omega = original_omega * vel / original_v
@@ -127,7 +129,7 @@ def simulation_scaling(action):
 
 def main():
     node = ImitationAgent()
-    protocol = protocol_agent_duckiebot1
+    protocol = protocol_agent_DB20
     wrap_direct(node=node, protocol=protocol)
 
 
