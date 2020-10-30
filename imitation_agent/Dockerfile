@@ -1,6 +1,6 @@
 ARG AIDO_REGISTRY
 
-FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-tensorflow:daffy
+FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-tensorflow:daffy-amd64
 
 ARG PIP_INDEX_URL
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
