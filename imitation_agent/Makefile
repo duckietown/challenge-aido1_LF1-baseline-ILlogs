@@ -1,11 +1,11 @@
 
 
 build:
-	dts build_utils aido-container-build --ignore-untagged
+	dts build_utils aido-container-build --use-branch daffy --ignore-untagged
 
 
 push: build
-	dts build_utils aido-container-push
+	dts build_utils aido-container-push --use-branch daffy
 
 
 submit:
