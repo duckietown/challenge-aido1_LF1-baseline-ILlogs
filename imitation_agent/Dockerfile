@@ -2,7 +2,7 @@ ARG AIDO_REGISTRY
 
 FROM ${AIDO_REGISTRY}/duckietown/challenge-aido_lf-template-tensorflow:daffy-amd64
 
-ARG PIP_INDEX_URL
+ARG PIP_INDEX_URL="https://pypi.org/simple"
 ENV PIP_INDEX_URL=${PIP_INDEX_URL}
 RUN echo PIP_INDEX_URL=${PIP_INDEX_URL}
 
