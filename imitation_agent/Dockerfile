@@ -26,7 +26,7 @@ COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # necessary to get opencv to work properly
-RUN apt update && apt install -y libsm6 libxext6
+RUN apt-get update && apt-get install -y libsm6 libxext6
 
 # CMD python solution.py
 ENTRYPOINT ["python", "imitation_agent.py"]
