@@ -73,7 +73,7 @@ jobs:
 #          name: Install deps
 #          # language=bash
 #          command: |
-#            pip install --use-feature=2020-resolver duckietown-shell duckietown-challenges-daffy pipdeptree
+#            pip install  duckietown-shell duckietown-challenges-daffy pipdeptree
 #            pipdeptree
 #            pip list
 #      - run:
